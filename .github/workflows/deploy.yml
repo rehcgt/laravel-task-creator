@@ -1,0 +1,52 @@
+name: Deploy Laravel to EC2
+
+on:
+  push:
+    branches:
+      - master # O la rama que uses para producción, por ejemplo 'master'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest # El tipo de runner que GitHub provee
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4 # Paso para clonar tu repositorio
+
+      - name: SSH into EC2 and Deploy
+        uses: appleboy/ssh-action@v1.0.0 # Una acción popular para ejecutar comandos SSH
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Ir al directorio del proyecto en el servidor
+            cd /var/www/laravel_task_creator
+
+            # Desplegar los últimos cambios de Git
+            git pull origin main # Asegúrate de que 'main' sea tu rama de producción
+
+            # Instalar/actualizar dependencias de Composer (solo si el composer.lock ha cambiado)
+            # Podrías querer hacer esto solo si hay cambios en composer.json/lock
+            composer install --optimize-autoloader --no-dev
+
+            # Ejecutar migraciones de base de datos
+            php artisan migrate --force
+
+            # Limpiar cachés de Laravel (opcional, pero buena práctica)
+            php artisan optimize:clear
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+            # Reiniciar PHP-FPM para que los cambios de código surtan efecto
+            # El comando puede variar según tu sistema operativo y versión de PHP
+            # Para Ubuntu/Debian:
+            # sudo systemctl reload php8.x-fpm # Ajusta la versión de PHP, por ejemplo php8.1-fpm
+            # Para Amazon Linux:
+            sudo systemctl reload php-fpm
+
+            npm ci --omit=dev
+            npm run build
+
+            echo "Deployment completed successfully!"
