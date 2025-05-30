@@ -21,7 +21,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             # Ir al directorio del proyecto en el servidor
-            cd /var/www/laravel_task_creator
+            cd /var/www/laravel-task-creator
 
             # Desplegar los últimos cambios de Git
             git pull origin main # Asegúrate de que 'main' sea tu rama de producción
