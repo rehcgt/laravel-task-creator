@@ -1,11 +1,15 @@
 <?php
 
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome');
-})->name('home');
+    return redirect()->route('tasks.index');
+});
+
+Route::resource('tasks', TaskController::class);
+Route::patch('/tasks/{task}/toggle', [TaskController::class, 'toggleComplete'])
+    ->name('tasks.toggle');
 
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
