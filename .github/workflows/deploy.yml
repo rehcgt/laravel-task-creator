@@ -24,7 +24,7 @@ jobs:
             cd /var/www/laravel-task-creator
 
             # Desplegar los últimos cambios de Git
-            git pull origin main # Asegúrate de que 'main' sea tu rama de producción
+            git pull origin master
 
             # Instalar/actualizar dependencias de Composer (solo si el composer.lock ha cambiado)
             # Podrías querer hacer esto solo si hay cambios en composer.json/lock
